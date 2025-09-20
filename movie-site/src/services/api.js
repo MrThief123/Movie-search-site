@@ -14,9 +14,14 @@ export const getPopularMovies = async () => {
 };
 
 export const searchMovies = async (query) => {
-    const reponse = await fetch(`${BASE_URL}/search/movie?api_key=${API_KEY}
-        &query=${encodeURIComponent(query)
-        }`);
-    const data = await reponse.json;
-    return data.results
-};
+  try {
+    const response = await fetch(
+      `${BASE_URL}/search/movie?api_key=${API_KEY}&query=${encodeURIComponent(query)}`
+    );
+    const data = await response.json();
+    return data.results || [];
+  } catch (err) {
+    console.error(err);
+    return [];
+  }
+}; 
