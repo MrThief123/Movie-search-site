@@ -1,44 +1,56 @@
 import MovieCard from "../components/MovieCard"
-import {useState} from "react"
-import "../css/Home.css";
+import { useState, useEffect } from "react"
+import "../css/Home.css"
+import { searchMovies, getPopularMovies } from "../services/api"
 
-function Home () {
-    const [searchQuery, setSearchQuery] = useState("");
+function Home() {
+  const [searchQuery, setSearchQuery] = useState("")
+  const [movies, setMovies] = useState([])
+  const [error, setError] = useState(null)
+  const [loading, setLoading] = useState(true)
 
-    const movies = [
-        {id: 1, title: "Piartes", release_date: "2024"},
-        {id: 2, title: "John Wick", release_date: "2013"},
-        {id: 3, title: "Intersetllar", release_date: "2014"},
-    ];
-
-    const handleSearch = (e) => {
-        e.preventDefault()
+  useEffect(() => {
+    const loadPopularMovies = async () => {
+      try {
+        const popularMovies = await getPopularMovies()
+        setMovies(popularMovies)
+      } catch (error) {
+        console.log(error)
+        setError("Failed to load movies...")
+      } finally {
+        setLoading(false)
+      }
     };
 
-    return (
-        <div className="home">
-            <form onSubmit={handleSearch} className="search-form">
-                <input 
-                    type="text" 
-                    placeholder="Search for movies..." 
-                    className="search-input"
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                />
-                <button type="submit" className="search-button">Search</button>
-                
-            </form>
+    loadPopularMovies();
+  }, []);
 
-            <div className="moives-grid">
-                {movies.map(movie => (
-                    movie.title.toLowerCase().startsWith(searchQuery) && (
-                    <MovieCard movie={movie} key={movie.id} />
-                    )
-                ))}
-            </div>
+  const handleSearch = (e) => {
+    e.preventDefault();
+  };
 
-        </div>
-    )
+  return (
+    <div className="home">
+      <form onSubmit={handleSearch} className="search-form">
+        <input
+          type="text"
+          placeholder="Search for movies..."
+          className="search-input"
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+        />
+        <button type="submit" className="search-button">Search</button>
+      </form>
+
+      <div className="movies-grid">
+        {movies.map((movie) =>
+          movie.title.toLowerCase().startsWith(searchQuery) && (
+            <MovieCard movie={movie} key={movie.id} />
+          )
+        )}
+      </div>
+    </div>
+  );
 }
 
-export default Home
+export default Home;
